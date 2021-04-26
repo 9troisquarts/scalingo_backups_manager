@@ -15,9 +15,9 @@ Gem::Specification.new do |spec|
   spec.metadata["source_code_uri"] = "https://github.com/kclercin/scalingo-backups-retriever"
   spec.metadata["changelog_uri"] = "https://github.com/kclercin/scalingo-backups-retriever/CHANGELOG.md"
 
-  spec.add_dependency "thor"
-  spec.add_dependency 'httparty'
-  spec.add_dependency 'scalingo'
+  spec.add_dependency "thor", '~> 1.1'
+  spec.add_dependency 'httparty', "~> 0.18"
+  spec.add_dependency 'scalingo', '~> 3.0.'
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
