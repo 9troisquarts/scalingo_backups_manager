@@ -2,11 +2,16 @@ require 'thor'
 require 'scalingo_backups_retriever/configuration'
 require 'scalingo_backups_retriever/application'
 require 'scalingo_backups_retriever/addon'
+require 'scalingo_backups_retriever/restore/mongodb'
 
 module ScalingoBackupsRetriever
+
+  DATABASE_PROVIDER_IDS = %w(mongodb postgresql mysql)
   class Cli < Thor
     desc "install", "It will guide you in the configuration process"
+    method_options all: :boolean
     def install
+      all = options[:all]
       unless Configuration.file_exists?
         puts "Configuration file not found"
         puts "Creating file..."
@@ -22,53 +27,95 @@ module ScalingoBackupsRetriever
         puts "You do not have access to any scalingo application"
         return
       end
-      application = nil
-      while application.nil?
-        applications.each_with_index do |application, index|
-          puts "#{index + 1} - #{application[:name]}"
+      if all
+        puts "Fetching scalingo app"
+        applications.each do |app|
+          application = ScalingoBackupsRetriever::Application.find(app[:id])
+          application.addons.each do |addon|
+            addon = ScalingoBackupsRetriever::Addon.find(application, addon[:id])
+            configuration.add_addon_to_app(application, addon) if addon.addon_provider[:id] && DATABASE_PROVIDER_IDS.include?(addon.addon_provider[:id])
+          end
         end
-        application_choice = ask("Select an application :").to_i
-        application = ScalingoBackupsRetriever::Application.find(applications[application_choice - 1][:id]) if application_choice > 0 && applications[application_choice - 1]
-      end
+      else
+        application = nil
+        while application.nil?
+          applications.each_with_index do |application, index|
+            puts "#{index + 1} - #{application[:name]}"
+          end
+          application_choice = ask("Select an application :").to_i
+          application = ScalingoBackupsRetriever::Application.find(applications[application_choice - 1][:id]) if application_choice > 0 && applications[application_choice - 1]
+        end
 
-      addons = application.addons
-      if addons.empty?
-        puts "This application have no addons"
-        return
-      end
-      addon = nil
-      while addon.nil?
-        p "#### Selecting #{application.name} addon ####"
-        addons.each_with_index do |addon, index|
-          puts "#{index + 1} - #{addon[:addon_provider][:name]} #{addon[:plan][:display_name]}"
+        addons = application.addons
+        if addons.empty?
+          puts "This application have no addons"
+          return
         end
-        addon_choice = ask("Select addon :").to_i
-        addon = ScalingoBackupsRetriever::Addon.find(application, addons[addon_choice - 1][:id]) if addon_choice > 0 && addons[addon_choice - 1]
+        addon = nil
+        while addon.nil?
+          p "#### Selecting #{application.name} addon ####"
+          addons.each_with_index do |addon, index|
+            puts "#{index + 1} - #{addon[:addon_provider][:name]} #{addon[:plan][:display_name]}"
+          end
+          addon_choice = ask("Select addon :").to_i
+          addon = ScalingoBackupsRetriever::Addon.find(application, addons[addon_choice - 1][:id]) if addon_choice > 0 && addons[addon_choice - 1]
+        end
+        configuration.add_addon_to_app(application, addon)
       end
-      configuration.add_addon_to_app(application, addon)
     end
 
     desc "download", "Download last backup all of application in configuration"
+    method_options application: :string, addon: :string
     def download
+      searched_application = options[:application]
+      searched_addon = options[:addon]
       configuration = Configuration.new
       unless configuration
-        puts "No configuration found, execute set_configuration"
-        return
+        puts "No configuration found, invoking install"
+        invoke :install
       end
 
-      configuration.addons.each do |addon|
+      configuration.for_each_addons(searched_application, searched_addon) do |application, addon|
         backups = addon.backups
         next unless backups.size > 0
         backup = backups.first
         download_link = backup.download_link
         if download_link
-          path = ("#{addon.config[:path]}" || "backups/#{addon.addon_provider[:id]}") + "/#{backup.id}"
-          system "curl #{download_link} -o #{path} --create-dirs"
+          path = ("#{addon.config[:path]}" || "backups/#{addon.addon_provider[:id]}") + "/#{Time.now.strftime("%Y%m%d")}.tar.gz"
+          if File.exist?(path)
+            puts "Backup already download, skipping..."
+          else
+            system "curl #{download_link} -o #{path} --create-dirs"
+          end
         else
           puts "No download link found for #{addon.addon_provider[:id]}, Skipping..."
         end
       end
     end
 
+    desc "restore", "Restore application backup to database"
+    method_option :application, type: :string, aliases: "-A", desc: "Application of addons to restore"
+    method_option :addon, :type => :string, aliases: "-a", desc: "Addon to restore"
+    method_option :host, type: :string, aliases: "-h", desc: "Host of your database server, useful when you are running your database in docker"
+    method_option :remote_database, type: :string, aliases: "-rdb", desc: "Name of remote database to restore"
+    method_option :database, type: :string, aliases: "-db", desc: "Name of local database, default is the database set in your database.yml/mongoid.yml"
+    method_option :skip_backup_delete, type: :boolean, aliases: "-skip-rm", desc: "Skip the deletion of folder after restore is complete"
+    def restore
+      invoke :download, [], application: options[:application], addon: options[:addon]
+      configuration = Configuration.new
+      configuration.for_each_addons(options[:application], options[:addon]) do |application, addon|
+        path = ("#{addon.config[:path]}" || "backups/#{addon.addon_provider[:id]}") + "/#{Time.now.strftime("%Y%m%d")}.tar.gz"
+        case addon.addon_provider[:id]
+        when "mongodb"
+          ScalingoBackupsRetriever::Restore::Mongodb.restore(path, { host: options[:host], remote_database_name: options[:remote_database], local_database_name: options[:database], skip_rm: options[:skip_backup_delete] })
+        else
+          puts "Restore of #{addon.addon_provider[:id]} is not handle yet"
+        end
+      end
+    end
+
   end
+
+  private
+
 end

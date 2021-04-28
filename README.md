@@ -1,8 +1,13 @@
+# THIS GEM IS A WORK IN PROGRESS
 # ScalingoBackupsRetriever
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/scalingo_backups_retriever`. To experiment with that code, run `bin/console` for an interactive prompt.
+This gem allow to download backups of multiple scalingo applications and addons in order to be restore in local database or be send to an SFTP server
 
-TODO: Delete this and the text above, and describe your gem
+
+## TODO
+
+- Mysql
+- Postgresql
 
 ## Installation
 
@@ -22,7 +27,7 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+`bundle exec scalingo_backups_retriever`
 
 ## Development
 

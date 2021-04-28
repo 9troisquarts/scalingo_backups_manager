@@ -32,11 +32,11 @@ module ScalingoBackupsRetriever
     end
 
     def client
-      Configuration.client
+      self.class.client
     end
 
     def addons
-      Configuration.client.addons.for(application[:id])&.data || []
+      self.class.client.addons.for(application[:id])&.data || []
     end
 
   end

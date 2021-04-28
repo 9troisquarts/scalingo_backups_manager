@@ -6,6 +6,7 @@ require 'scalingo_backups_retriever/addon'
 module ScalingoBackupsRetriever
 
   class Configuration
+    attr_accessor :config
     FILE_NAME = "scalingo-backups-config.yml"
 
     def self.file_exists?
@@ -52,18 +53,19 @@ module ScalingoBackupsRetriever
       self.class.write_config(@config)
     end
 
-    def addons
-      adds = []
+    def for_each_addons(application_uid, addon_uid)
       @config[:apps].each do |application_name, application_config|
+        next if application_uid && application_uid != application_name.to_s
         next unless application_config[:id]
         application = ScalingoBackupsRetriever::Application.find(application_config[:id])
         next unless application_config[:addons] && application_config[:addons].size > 0
         application_config[:addons].each do |addon_name, addon_config|
+          next if addon_uid && addon_uid != addon_name.to_s
           next unless addon_config[:id]
-          adds.push ScalingoBackupsRetriever::Addon.find(application, addon_config[:id], config: addon_config)
+          addon = ScalingoBackupsRetriever::Addon.find(application, addon_config[:id], config: addon_config)
+          yield(application, addon) if block_given?
         end
       end
-      adds
     end
 
 

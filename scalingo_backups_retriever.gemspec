@@ -4,7 +4,7 @@ Gem::Specification.new do |spec|
   spec.name          = "scalingo_backups_retriever"
   spec.version       = ScalingoBackupsRetriever::VERSION
   spec.authors       = ["Kevin Clercin"]
-  spec.email         = ["k.clercin@gmail.com"]
+  spec.email         = ["kevin@9troisquarts.com"]
 
   spec.summary       = %q{Gem allowing to download backups from scalingo}
   spec.homepage      = "https://github.com/kclercin/scalingo-backups-retriever"
@@ -24,7 +24,8 @@ Gem::Specification.new do |spec|
   spec.files         = Dir.chdir(File.expand_path('..', __FILE__)) do
     `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   end
-  spec.bindir        = "exe"
+  spec.bindir        = "bin"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
+  spec.executables   << "scalingo_backups_retriever"
   spec.require_paths = ["lib"]
 end

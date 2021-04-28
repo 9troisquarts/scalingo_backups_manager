@@ -2,9 +2,9 @@ PATH
   remote: .
   specs:
     scalingo_backups_retriever (0.1.0)
-      httparty
-      scalingo
-      thor
+      httparty (~> 0.18)
+      scalingo (~> 3.0)
+      thor (~> 1.1)
 
 GEM
   remote: https://rubygems.org/
