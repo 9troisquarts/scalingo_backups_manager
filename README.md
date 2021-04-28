@@ -11,10 +11,10 @@ This gem allow to download backups of multiple scalingo applications and addons 
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Add this line to your application's Gemfile (not hosted on Rubygems):
 
 ```ruby
-gem 'scalingo_backups_manager'
+gem 'scalingo_backups_manager', git: "https://github.com/9troisquarts/scalingo_backups_manager"
 ```
 
 And then execute:
