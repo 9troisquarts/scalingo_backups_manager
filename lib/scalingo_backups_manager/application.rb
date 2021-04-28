@@ -1,6 +1,6 @@
-require 'scalingo_backups_retriever/configuration'
+require 'scalingo_backups_manager/configuration'
 
-module ScalingoBackupsRetriever
+module ScalingoBackupsManager
   class Application
 
     class << self

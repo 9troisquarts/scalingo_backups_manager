@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    scalingo_backups_retriever (0.1.0)
+    scalingo_backups_manager (0.2.0)
       httparty (~> 0.18)
       scalingo (~> 3.0)
       thor (~> 1.1)
@@ -63,7 +63,7 @@ PLATFORMS
 DEPENDENCIES
   rake (~> 12.0)
   rspec (~> 3.0)
-  scalingo_backups_retriever!
+  scalingo_backups_manager!
 
 BUNDLED WITH
    2.1.4

@@ -1,10 +1,10 @@
 require 'thor'
-require 'scalingo_backups_retriever/configuration'
-require 'scalingo_backups_retriever/application'
-require 'scalingo_backups_retriever/addon'
-require 'scalingo_backups_retriever/restore/mongodb'
+require 'scalingo_backups_manager/configuration'
+require 'scalingo_backups_manager/application'
+require 'scalingo_backups_manager/addon'
+require 'scalingo_backups_manager/restore/mongodb'
 
-module ScalingoBackupsRetriever
+module ScalingoBackupsManager
 
   DATABASE_PROVIDER_IDS = %w(mongodb postgresql mysql)
   class Cli < Thor
@@ -22,7 +22,7 @@ module ScalingoBackupsRetriever
         return
       end
       configuration = Configuration.new
-      applications = ScalingoBackupsRetriever::Application.all
+      applications = ScalingoBackupsManager::Application.all
       if applications.empty?
         puts "You do not have access to any scalingo application"
         return
@@ -30,9 +30,9 @@ module ScalingoBackupsRetriever
       if all
         puts "Fetching scalingo app"
         applications.each do |app|
-          application = ScalingoBackupsRetriever::Application.find(app[:id])
+          application = ScalingoBackupsManager::Application.find(app[:id])
           application.addons.each do |addon|
-            addon = ScalingoBackupsRetriever::Addon.find(application, addon[:id])
+            addon = ScalingoBackupsManager::Addon.find(application, addon[:id])
             configuration.add_addon_to_app(application, addon) if addon.addon_provider[:id] && DATABASE_PROVIDER_IDS.include?(addon.addon_provider[:id])
           end
         end
@@ -43,7 +43,7 @@ module ScalingoBackupsRetriever
             puts "#{index + 1} - #{application[:name]}"
           end
           application_choice = ask("Select an application :").to_i
-          application = ScalingoBackupsRetriever::Application.find(applications[application_choice - 1][:id]) if application_choice > 0 && applications[application_choice - 1]
+          application = ScalingoBackupsManager::Application.find(applications[application_choice - 1][:id]) if application_choice > 0 && applications[application_choice - 1]
         end
 
         addons = application.addons
@@ -58,7 +58,7 @@ module ScalingoBackupsRetriever
             puts "#{index + 1} - #{addon[:addon_provider][:name]} #{addon[:plan][:display_name]}"
           end
           addon_choice = ask("Select addon :").to_i
-          addon = ScalingoBackupsRetriever::Addon.find(application, addons[addon_choice - 1][:id]) if addon_choice > 0 && addons[addon_choice - 1]
+          addon = ScalingoBackupsManager::Addon.find(application, addons[addon_choice - 1][:id]) if addon_choice > 0 && addons[addon_choice - 1]
         end
         configuration.add_addon_to_app(application, addon)
       end
@@ -107,7 +107,7 @@ module ScalingoBackupsRetriever
         path = ("#{addon.config[:path]}" || "backups/#{addon.addon_provider[:id]}") + "/#{Time.now.strftime("%Y%m%d")}.tar.gz"
         case addon.addon_provider[:id]
         when "mongodb"
-          ScalingoBackupsRetriever::Restore::Mongodb.restore(path, { host: options[:host], remote_database_name: options[:remote_database], local_database_name: options[:database], skip_rm: options[:skip_backup_delete] })
+          ScalingoBackupsManager::Restore::Mongodb.restore(path, { host: options[:host], remote_database_name: options[:remote_database], local_database_name: options[:database], skip_rm: options[:skip_backup_delete] })
         else
           puts "Restore of #{addon.addon_provider[:id]} is not handle yet"
         end

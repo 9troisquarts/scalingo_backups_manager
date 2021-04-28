@@ -1,5 +1,5 @@
 require "bundler/setup"
-require "scalingo_backups_retriever"
+require "scalingo_backups_manager"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

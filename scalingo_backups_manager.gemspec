@@ -1,19 +1,19 @@
-require_relative 'lib/scalingo_backups_retriever/version'
+require_relative 'lib/scalingo_backups_manager/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "scalingo_backups_retriever"
-  spec.version       = ScalingoBackupsRetriever::VERSION
+  spec.name          = "scalingo_backups_manager"
+  spec.version       = ScalingoBackupsManager::VERSION
   spec.authors       = ["Kevin Clercin"]
   spec.email         = ["kevin@9troisquarts.com"]
 
   spec.summary       = %q{Gem allowing to download backups from scalingo}
-  spec.homepage      = "https://github.com/kclercin/scalingo-backups-retriever"
+  spec.homepage      = "https://github.com/9troisquarts/scalingo_backups_manager"
   spec.license       = "MIT"
   spec.required_ruby_version = Gem::Requirement.new(">= 2.3.0")
 
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://github.com/kclercin/scalingo-backups-retriever"
-  spec.metadata["changelog_uri"] = "https://github.com/kclercin/scalingo-backups-retriever/CHANGELOG.md"
+  spec.metadata["source_code_uri"] = "https://github.com/9troisquarts/scalingo_backups_manager"
+  spec.metadata["changelog_uri"] = "https://github.com/9troisquarts/scalingo_backups_manager/CHANGELOG.md"
 
   spec.add_dependency "thor", '~> 1.1'
   spec.add_dependency 'httparty', "~> 0.18"
@@ -26,6 +26,6 @@ Gem::Specification.new do |spec|
   end
   spec.bindir        = "bin"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
-  spec.executables   << "scalingo_backups_retriever"
+  spec.executables   << "scalingo_backups_manager"
   spec.require_paths = ["lib"]
 end

@@ -1,6 +1,6 @@
 require 'yaml'
 require 'erb'
-module ScalingoBackupsRetriever
+module ScalingoBackupsManager
   module Restore
     class Mongodb
 

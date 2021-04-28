@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require "bundler/setup"
+require "scalingo_backups_manager"
+
+ScalingoBackupsManager::Cli.start(ARGV)

@@ -1,5 +1,5 @@
 # THIS GEM IS A WORK IN PROGRESS
-# ScalingoBackupsRetriever
+# Scalingo backups manager
 
 This gem allow to download backups of multiple scalingo applications and addons in order to be restore in local database or be send to an SFTP server
 
@@ -14,7 +14,7 @@ This gem allow to download backups of multiple scalingo applications and addons 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'scalingo_backups_retriever'
+gem 'scalingo_backups_manager'
 ```
 
 And then execute:
@@ -23,11 +23,11 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install scalingo_backups_retriever
+    $ gem install scalingo_backups_manager
 
 ## Usage
 
-`bundle exec scalingo_backups_retriever`
+`bundle exec scalingo_backups_manager`
 
 ## Development
 
@@ -37,7 +37,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/scalingo_backups_retriever. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/scalingo_backups_retriever/blob/master/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/scalingo_backups_manager. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/scalingo_backups_manager/blob/master/CODE_OF_CONDUCT.md).
 
 
 ## License
@@ -46,4 +46,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the ScalingoBackupsRetriever project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/scalingo_backups_retriever/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the ScalingoBackupsManager project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/scalingo_backups_manager/blob/master/CODE_OF_CONDUCT.md).

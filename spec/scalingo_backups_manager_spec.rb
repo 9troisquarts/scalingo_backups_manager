@@ -1,6 +1,6 @@
-RSpec.describe ScalingoBackupsRetriever do
+RSpec.describe ScalingoBackupsManager do
   it "has a version number" do
-    expect(ScalingoBackupsRetriever::VERSION).not_to be nil
+    expect(ScalingoBackupsManager::VERSION).not_to be nil
   end
 
   it "does something useful" do

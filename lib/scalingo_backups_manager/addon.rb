@@ -1,7 +1,7 @@
-require 'scalingo_backups_retriever/configuration'
-require 'scalingo_backups_retriever/backup'
+require 'scalingo_backups_manager/configuration'
+require 'scalingo_backups_manager/backup'
 
-module ScalingoBackupsRetriever
+module ScalingoBackupsManager
 
   class Addon
 
@@ -15,7 +15,7 @@ module ScalingoBackupsRetriever
     end
 
     def initialize(app, addon, config: {})
-      raise "Application must be set" unless app && app.is_a?(ScalingoBackupsRetriever::Application)
+      raise "Application must be set" unless app && app.is_a?(ScalingoBackupsManager::Application)
       @application = app
       @addon = addon
       @config = config
@@ -54,7 +54,7 @@ module ScalingoBackupsRetriever
       return [] unless response[:database_backups] && response[:database_backups].size > 0
       bcks = []
       response[:database_backups].each do |backup|
-        bcks.push ScalingoBackupsRetriever::Backup.new(self, backup[:id])
+        bcks.push ScalingoBackupsManager::Backup.new(self, backup[:id])
       end
       bcks
     end

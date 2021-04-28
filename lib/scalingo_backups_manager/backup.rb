@@ -1,4 +1,4 @@
-module ScalingoBackupsRetriever
+module ScalingoBackupsManager
 
   class Backup
     attr_accessor :addon, :id
