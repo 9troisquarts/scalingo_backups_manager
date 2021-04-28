@@ -55,9 +55,7 @@ module ScalingoBackupsManager
         end
 
         puts "*** Restoring backup to Mongodb database ***"
-        puts opts.inspect
-        puts restore_cmd
-        #system(cmd)
+        system(restore_cmd)
         FileUtils.rm_r destination_path unless opts[:skip_rm]
       end
 
