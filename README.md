@@ -27,6 +27,8 @@ Or install it yourself as:
 
 ## Usage
 
+In order to use this gem, you need to have an environment variable named SCALINGO_API_TOKEN which can be created on your [scalingo profile](https://dashboard-prev.osc-fr1.scalingo.com/profile)
+
 `bundle exec scalingo_backups_manager`
 
 ## Development
