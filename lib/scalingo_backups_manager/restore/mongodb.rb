@@ -15,10 +15,12 @@ module ScalingoBackupsManager
         })
         destination_path = filename.split("/")
         backup_name = destination_path.pop.gsub(".tar.gz", "")
-        destination_path = destination_path.join("/")
+        destination_path = destination_path.join("/") + backup_name + "/"
+        p destination_path
         if Dir.exist?(destination_path)
           puts "Unzipped backup is already present, skipping..."
         else
+          Dir.mkdir(destination_path) unless Dir.exist?(destination_path)
           untar_cmd = "tar zxvf #{filename} -C #{destination_path}"
           system untar_cmd
         end
@@ -38,9 +40,9 @@ module ScalingoBackupsManager
         end
 
         if opts[:remote_database_name].present?
-          restore_cmd << " --dir \"#{destination_path}#{backup_name}/#{opts[:remote_database_name]}\""
+          restore_cmd << " --dir \"#{destination_path}/#{opts[:remote_database_name]}\""
         else
-          restore_cmd << " --dir \"#{destination_path}#{backup_name}/\""
+          restore_cmd << " --dir \"#{destination_path}/\""
         end
 
         if config[:auth_source].present?
