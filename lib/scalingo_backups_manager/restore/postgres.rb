@@ -29,8 +29,8 @@ module ScalingoBackupsManager
         config = {
           host: rails_db_config["host"],
           database: rails_db_config["database"],
-          password: rails_db_config["options"]["password"],
-          user: rails_db_config["options"]["user"],
+          password: rails_db_config["password"],
+          user: rails_db_config["user"],
         }
 
         restore_cmd = "/usr/bin/env psql #{config[:database]} -h #{opts[:host] || config[:host]}"
