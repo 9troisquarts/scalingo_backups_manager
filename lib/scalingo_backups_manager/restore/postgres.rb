@@ -27,7 +27,7 @@ module ScalingoBackupsManager
 
         rails_db_config = YAML.load(ERB.new(File.read("config/#{opts[:database_config_file]}")).result)[opts[:env]]
         config = {
-          host: rails_db_config["hosts"].first,
+          host: rails_db_config["host"],
           database: rails_db_config["database"],
           password: rails_db_config["options"]["password"],
           user: rails_db_config["options"]["user"],
