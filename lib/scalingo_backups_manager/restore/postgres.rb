@@ -11,7 +11,8 @@ module ScalingoBackupsManager
           host: nil,
           remote_database_name: nil,
           local_database_name: nil,
-          skip_rm: false
+          skip_rm: false,
+          port: nil,
         })
         destination_path = filename.split("/")
         backup_name = destination_path.pop.gsub(".tar.gz", "")
@@ -44,7 +45,7 @@ module ScalingoBackupsManager
         end
 
         if config[:port].present?
-          restore_cmd << " -p #{config[:port] || 5432}"
+          restore_cmd << " -p #{opts[:port] || config[:port] || 5432}"
         end
 
         restore_cmd << " < #{destination_path}"

@@ -97,6 +97,7 @@ module ScalingoBackupsManager
     desc "restore", "Restore application backup to database"
     method_option :application, type: :string, aliases: "-A", desc: "Application of addons to restore"
     method_option :addon, :type => :string, aliases: "-a", desc: "Addon to restore"
+    method_option :port, type: :string, aliases: "-p", desc: "Port of database"
     method_option :host, type: :string, aliases: "-h", desc: "Host of your database server, useful when you are running your database in docker"
     method_option :remote_database, type: :string, aliases: "-rdb", desc: "Name of remote database to restore"
     method_option :database, type: :string, aliases: "-db", desc: "Name of local database, default is the database set in your database.yml/mongoid.yml"
@@ -106,7 +107,7 @@ module ScalingoBackupsManager
       configuration = Configuration.new
       configuration.for_each_addons(options[:application], options[:addon]) do |application, addon|
         path = ("#{addon.config[:path]}" || "backups/#{addon.addon_provider[:id]}") + "/#{Time.now.strftime("%Y%m%d")}.tar.gz"
-        opts = { host: options[:host], remote_database_name: options[:remote_database], local_database_name: options[:database], skip_rm: options[:skip_backup_delete] }
+        opts = { port: options[:port], host: options[:host], remote_database_name: options[:remote_database], local_database_name: options[:database], skip_rm: options[:skip_backup_delete] }
         case addon.addon_provider[:id]
         when 'mongodb'
           ScalingoBackupsManager::Restore::Mongodb.restore(path, opts)
