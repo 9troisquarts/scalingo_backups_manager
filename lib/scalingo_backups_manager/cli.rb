@@ -3,6 +3,7 @@ require 'scalingo_backups_manager/configuration'
 require 'scalingo_backups_manager/application'
 require 'scalingo_backups_manager/addon'
 require 'scalingo_backups_manager/restore/mongodb'
+require 'scalingo_backups_manager/restore/postgres'
 
 module ScalingoBackupsManager
 
@@ -105,9 +106,12 @@ module ScalingoBackupsManager
       configuration = Configuration.new
       configuration.for_each_addons(options[:application], options[:addon]) do |application, addon|
         path = ("#{addon.config[:path]}" || "backups/#{addon.addon_provider[:id]}") + "/#{Time.now.strftime("%Y%m%d")}.tar.gz"
+        opts = { host: options[:host], remote_database_name: options[:remote_database], local_database_name: options[:database], skip_rm: options[:skip_backup_delete] }
         case addon.addon_provider[:id]
-        when "mongodb"
-          ScalingoBackupsManager::Restore::Mongodb.restore(path, { host: options[:host], remote_database_name: options[:remote_database], local_database_name: options[:database], skip_rm: options[:skip_backup_delete] })
+        when 'mongodb'
+          ScalingoBackupsManager::Restore::Mongodb.restore(path, opts)
+        when 'postgresql'
+          ScalingoBackupsManager::Restore::Postgres.restore(path, opts)
         else
           puts "Restore of #{addon.addon_provider[:id]} is not handle yet"
         end
