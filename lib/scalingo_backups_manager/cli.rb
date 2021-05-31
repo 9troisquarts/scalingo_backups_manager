@@ -4,6 +4,7 @@ require 'scalingo_backups_manager/application'
 require 'scalingo_backups_manager/addon'
 require 'scalingo_backups_manager/restore/mongodb'
 require 'scalingo_backups_manager/restore/postgres'
+require 'scalingo_backups_manager/restore/mysql'
 
 module ScalingoBackupsManager
 
@@ -113,6 +114,8 @@ module ScalingoBackupsManager
           ScalingoBackupsManager::Restore::Mongodb.restore(path, opts)
         when 'postgresql'
           ScalingoBackupsManager::Restore::Postgres.restore(path, opts)
+        when 'mysql'
+          ScalingoBackupsManager::Restore::Mysql.restore(path, opts)
         else
           puts "Restore of #{addon.addon_provider[:id]} is not handle yet"
         end
