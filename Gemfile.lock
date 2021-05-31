@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    scalingo_backups_manager (0.2.0)
+    scalingo_backups_manager (0.3.0)
       httparty (~> 0.18)
       scalingo (~> 3.0)
       thor (~> 1.1)
@@ -9,7 +9,7 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (6.1.3.1)
+    activesupport (6.1.3.2)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
