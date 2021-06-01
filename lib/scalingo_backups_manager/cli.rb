@@ -5,6 +5,7 @@ require 'scalingo_backups_manager/addon'
 require 'scalingo_backups_manager/restore/mongodb'
 require 'scalingo_backups_manager/restore/postgres'
 require 'scalingo_backups_manager/restore/mysql'
+require 'scalingo_backups_manager/sftp_tools'
 
 module ScalingoBackupsManager
 
@@ -83,6 +84,7 @@ module ScalingoBackupsManager
         backup = backups.first
         download_link = backup.download_link
         if download_link
+          puts "Downloading #{application.name} last backup"
           path = ("#{addon.config[:path]}" || "backups/#{addon.addon_provider[:id]}") + "/#{Time.now.strftime("%Y%m%d")}.tar.gz"
           if File.exist?(path)
             puts "Backup already download, skipping..."
@@ -119,6 +121,46 @@ module ScalingoBackupsManager
         else
           puts "Restore of #{addon.addon_provider[:id]} is not handle yet"
         end
+      end
+    end
+
+    desc "upload_to_ftp", "Upload last backup to FTP"
+    def upload_to_ftp
+      invoke :download, [], application: options[:application], addon: options[:addon]
+      configuration = Configuration.new
+      configuration.for_each_addons do |application, addon|
+        config = addon.sftp_config
+        path = ("#{addon.config[:path]}" || "backups/#{addon.addon_provider[:id]}") + "/#{Time.now.strftime("%Y%m%d")}.tar.gz"
+        next unless File.exists?(path)
+
+        sftp = ScalingoBackupsManager::SftpTools.new(config[:auth])
+
+        folders = [
+          config.dig(:auth, :dir),
+          config.dig(:dir) || application.name,
+          addon.addon_provider[:id]
+        ]
+
+        if config[:retention].blank?
+          remote_path = "/" + [folders].delete_if(&:blank?).join("/")
+          sftp.mkdir!(remote_path)
+          sftp.upload_file(path, remote_path)
+          next
+        end
+
+        config[:retention].each do |k, v|
+          folders << config.dig(:retention, k, :dir)
+          remote_path = "/" + [folders].delete_if(&:blank?).join("/")
+          sftp.mkdir!(remote_path)
+          case k
+          when "daily"
+            sftp.upload_file(path, remote_path)
+          when "monthly"
+            next unless Date.today.day == 1
+            sftp.upload_file(path, remote_path)
+          end
+        end
+
       end
     end
 

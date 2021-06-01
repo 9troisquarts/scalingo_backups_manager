@@ -5,19 +5,20 @@ module ScalingoBackupsManager
 
   class Addon
 
-    attr_accessor :application, :addon, :config
+    attr_accessor :application, :addon, :config, :sftp_config
 
     DEFAULT_DATABASE_API_ROOT_URL = "https://db-api.osc-fr1.scalingo.com"
 
-    def self.find(app, id, config: {})
+    def self.find(app, id, config: {}, sftp_config: {})
       addon = Configuration.client.addons.find(app.id, id).data
-      self.new(app, addon, config: config)
+      self.new(app, addon, config: config, sftp_config: sftp_config)
     end
 
-    def initialize(app, addon, config: {})
+    def initialize(app, addon, config: {}, sftp_config: {})
       raise "Application must be set" unless app && app.is_a?(ScalingoBackupsManager::Application)
       @application = app
       @addon = addon
+      @sftp_config = sftp_config
       @config = config
     end
 

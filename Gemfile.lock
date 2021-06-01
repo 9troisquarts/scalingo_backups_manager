@@ -3,6 +3,7 @@ PATH
   specs:
     scalingo_backups_manager (0.3.0)
       httparty (~> 0.18)
+      net-sftp (~> 3.0.0)
       scalingo (~> 3.0)
       thor (~> 1.1)
 
@@ -33,6 +34,9 @@ GEM
     multi_json (1.15.0)
     multi_xml (0.6.0)
     multipart-post (2.1.1)
+    net-sftp (3.0.0)
+      net-ssh (>= 5.0.0, < 7.0.0)
+    net-ssh (6.1.0)
     rake (12.3.3)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)

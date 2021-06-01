@@ -16,7 +16,6 @@ module ScalingoBackupsManager
     def self.create_file
       File.open(FILE_NAME, 'w+') do |f|
         f.flock(File::LOCK_EX)
-        content = f.read
         f.rewind
         f.write({ region: 'osc-fr-1', apps: []}.to_yaml)
         f.flush
@@ -34,7 +33,7 @@ module ScalingoBackupsManager
       File.open(FILE_NAME, "w+") do |f|
         f.flock(File::LOCK_EX)
         f.truncate(0)
-        f.write(config.to_yaml)
+        f.write(config.to_hash.to_yaml)
         f.flush
       end
     end
@@ -45,7 +44,7 @@ module ScalingoBackupsManager
         puts "Configuration file does not exist"
         return
       end
-      @config = YAML.load(@file.read) || { apps: [] }
+      @config = (YAML.load(@file.read) || { apps: [] })
     end
 
     def add_addon_to_app(application, addon)
@@ -53,16 +52,21 @@ module ScalingoBackupsManager
       self.class.write_config(@config)
     end
 
-    def for_each_addons(application_uid, addon_uid)
+    def for_each_addons(application_uid = nil, addon_uid = nil)
+      client_sftp_config = @config[:sftp] || {}
+
       @config[:apps].each do |application_name, application_config|
         next if application_uid && application_uid != application_name.to_s
         next unless application_config[:id]
         application = ScalingoBackupsManager::Application.find(application_config[:id])
         next unless application_config[:addons] && application_config[:addons].size > 0
+
+        app_sftp_config = (application_config[:sftp] || {}).reverse_merge(client_sftp_config)
+
         application_config[:addons].each do |addon_name, addon_config|
           next if addon_uid && addon_uid != addon_name.to_s
           next unless addon_config[:id]
-          addon = ScalingoBackupsManager::Addon.find(application, addon_config[:id], config: addon_config)
+          addon = ScalingoBackupsManager::Addon.find(application, addon_config[:id], config: addon_config, sftp_config: (addon_config[:sftp] || {}).reverse_merge(app_sftp_config))
           yield(application, addon) if block_given?
         end
       end

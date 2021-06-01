@@ -3,7 +3,6 @@
 
 This gem allow to download backups of multiple scalingo applications and addons in order to be restore in local database or be send to an SFTP server
 
-
 ## TODO
 
 - Mysql
