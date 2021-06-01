@@ -14,6 +14,22 @@ module ScalingoBackupsManager
       end
     end
 
+    def list_files(path)
+      files = []
+      start do |sftp|
+        sftp.dir.glob("#{path}", "*.tar.gz").each do |file|
+          files << file
+        end
+      end
+      files
+    end
+
+    def remove!(path)
+      start do |sftp|
+        sftp.remove!(path)
+      end
+    end
+
     def mkdir!(path)
       start do |sftp|
         folder_tree = []

@@ -129,9 +129,11 @@ module ScalingoBackupsManager
       invoke :download, [], application: options[:application], addon: options[:addon]
       configuration = Configuration.new
       configuration.for_each_addons do |application, addon|
+        step = 1
         config = addon.sftp_config
         path = ("#{addon.config[:path]}" || "backups/#{addon.addon_provider[:id]}") + "/#{Time.now.strftime("%Y%m%d")}.tar.gz"
         next unless File.exists?(path)
+        puts "** Upload backup for #{application.name} **"
 
         sftp = ScalingoBackupsManager::SftpTools.new(config[:auth])
 
@@ -148,16 +150,32 @@ module ScalingoBackupsManager
           next
         end
 
-        config[:retention].each do |k, v|
-          folders << config.dig(:retention, k, :dir)
-          remote_path = "/" + [folders].delete_if(&:blank?).join("/")
+        config[:retention].each do |k, retention_config|
+          retention_folders = folders.dup
+          retention_folders << config.dig(:retention, k, :dir)
+          remote_path = "/" + retention_folders.delete_if(&:blank?).join("/")
+          puts "#{step} - Creating remote directory at #{remote_path}"
+          step += 1
           sftp.mkdir!(remote_path)
           case k
           when "daily"
             sftp.upload_file(path, remote_path)
+            files = sftp.list_files(remote_path)
+            puts "#{step} - Checking daily backups"
+            step += 1
+            if files.size > retention_config[:ttl]
+              files_to_remove = files.sort_by(&:name).shift(files.size - retention_config[:ttl])
+              puts "#{step} - Removing #{files_to_remove.size} backups because of ttl configuration"
+              files_to_remove.each do |file|
+                puts "Removing file #{remote_path + "/" + file.name}"
+                sftp.remove!(remote_path + "/" + file.name)
+              end
+            end
           when "monthly"
             next unless Date.today.day == 1
             sftp.upload_file(path, remote_path)
+            puts "#{step} - Checking monthly backups"
+            step += 1
           end
         end
 
