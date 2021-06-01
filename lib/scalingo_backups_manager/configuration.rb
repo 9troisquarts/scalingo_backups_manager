@@ -44,7 +44,7 @@ module ScalingoBackupsManager
         puts "Configuration file does not exist"
         return
       end
-      @config = (YAML.load(@file.read) || { apps: [] })
+      @config = (YAML.load(@file.read) || { apps: [] }).with_indifferent_access
     end
 
     def add_addon_to_app(application, addon)

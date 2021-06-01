@@ -15,7 +15,6 @@ module ScalingoBackupsManager
     end
 
     def mkdir!(path)
-      puts "Creating #{path} folder on sftp"
       start do |sftp|
         folder_tree = []
         path.split("/").each do |folder_name|
