@@ -44,7 +44,7 @@ module ScalingoBackupsManager
           end
         end
 
-        if config[:port].present?
+        if opts[:port].present? && config[:port].present?
           restore_cmd << " -p #{opts[:port] || config[:port] || 5432}"
         end
 
