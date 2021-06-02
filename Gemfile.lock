@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    scalingo_backups_manager (0.4.0)
+    scalingo_backups_manager (0.5.0)
       httparty (~> 0.18)
       net-sftp (~> 3.0.0)
       scalingo (~> 3.0)

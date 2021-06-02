@@ -128,38 +128,41 @@ module ScalingoBackupsManager
     def upload_to_ftp
       invoke :download, [], application: options[:application], addon: options[:addon]
       configuration = Configuration.new
+      opts = {
+        webhooks: configuration.config[:webhooks]
+      }
       configuration.for_each_addons do |application, addon|
         step = 1
-        config = addon.sftp_config
+        sftp_config = addon.sftp_config
         path = ("#{addon.config[:path]}" || "backups/#{addon.addon_provider[:id]}") + "/#{Time.now.strftime("%Y%m%d")}.tar.gz"
         next unless File.exists?(path)
         puts "** Upload backup for #{application.name} **"
 
-        sftp = ScalingoBackupsManager::SftpTools.new(config[:auth])
+        sftp = ScalingoBackupsManager::SftpTools.new(sftp_config[:auth])
 
         folders = [
-          config.dig(:auth, :dir),
-          config.dig(:dir) || application.name,
+          sftp_config.dig(:auth, :dir),
+          sftp_config.dig(:dir) || application.name,
           addon.addon_provider[:id]
         ]
 
-        if config[:retention].blank?
+        if sftp_config[:retention].blank?
           remote_path = "/" + [folders].delete_if(&:blank?).join("/")
           sftp.mkdir!(remote_path)
-          sftp.upload_file(path, remote_path)
+          sftp.upload_file(path, remote_path, options: opts)
           next
         end
 
-        config[:retention].each do |k, retention_config|
+        sftp_config[:retention].each do |k, retention_config|
           retention_folders = folders.dup
-          retention_folders << config.dig(:retention, k, :dir)
+          retention_folders << sftp_config.dig(:retention, k, :dir)
           remote_path = "/" + retention_folders.delete_if(&:blank?).join("/")
           puts "#{step} - Creating remote directory at #{remote_path}"
           step += 1
           sftp.mkdir!(remote_path)
           case k
           when "daily"
-            sftp.upload_file(path, remote_path)
+            sftp.upload_file(path, remote_path, options: opts)
             files = sftp.list_files(remote_path)
             puts "#{step} - Checking daily backups"
             step += 1
@@ -173,7 +176,7 @@ module ScalingoBackupsManager
             end
           when "monthly"
             next unless Date.today.day == 1
-            sftp.upload_file(path, remote_path)
+            sftp.upload_file(path, remote_path, options: opts)
             puts "#{step} - Checking monthly backups"
             step += 1
           end

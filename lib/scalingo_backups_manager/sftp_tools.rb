@@ -1,3 +1,4 @@
+require 'scalingo_backups_manager/notification'
 require 'net/sftp'
 
 module ScalingoBackupsManager
@@ -45,10 +46,19 @@ module ScalingoBackupsManager
       end
     end
 
-    def upload_file(filepath, remote_dir)
+    def upload_file(filepath, remote_dir, options: {})
       filename = filepath.split('/').last
       start do |sftp|
-        sftp.upload!(filepath, "#{remote_dir}/#{filename}")
+        begin
+          sftp.upload!(filepath, "#{remote_dir}/#{filename}")
+        rescue
+          if options.dig(:webhooks, :slack_webhook_url)
+            ScalingoBackupsManager::Notification.send_slack_notification(options.dig(:webhooks, :slack_webhook_url), "An error has occured while uploading backup, see the logs for more information")
+          end
+          if options.dig(:webhooks, :discord_webhook_url)
+            ScalingoBackupsManager::Notification.send_discord_notification(options.dig(:webhooks, :discord_webhook_url), "An error has occured while uploading backup, see the logs for more information")
+          end
+        end
       end
     end
   end
