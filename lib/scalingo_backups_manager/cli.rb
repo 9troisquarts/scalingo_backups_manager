@@ -183,6 +183,7 @@ module ScalingoBackupsManager
         end
 
       end
+      FileUtils.rm_r 'backups/'
     end
 
   end
