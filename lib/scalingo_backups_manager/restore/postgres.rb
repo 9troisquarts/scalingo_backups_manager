@@ -34,21 +34,27 @@ module ScalingoBackupsManager
           user: rails_db_config["user"],
         }
 
-        restore_cmd = "/usr/bin/env psql #{config[:database]} -h #{opts[:host] || config[:host]}"
+        restore_cmd = "/usr/bin/env pg_restore"
 
+        file_path = Dir["#{destination_path}*.pgsql"]
+        if file_path.empty?
+          puts "*** No SQL file found in tar ***"
+          return
+        end
+        restore_cmd << " #{file_path.first}"
+
+        if config[:host].present?
+          restore_cmd << " -h #{opts[:host] || config[:host] || 'localhost'}"
+        end
         if config[:user].present?
-          restore_cmd << " --u #{config[:user]}"
-          if config[:password].present?
-            restore_cmd << " --password"
-            restore_cmd << " #{config[:password]}"
-          end
+          restore_cmd << " -U #{config[:user]}"
         end
 
-        if opts[:port].present? && config[:port].present?
+        if opts[:port].present? || config[:port].present?
           restore_cmd << " -p #{opts[:port] || config[:port] || 5432}"
         end
 
-        restore_cmd << " < #{destination_path}"
+        restore_cmd << " -d #{config[:database]}"
 
         puts "*** Restoring backup to Postgres database ***"
         system(restore_cmd)
