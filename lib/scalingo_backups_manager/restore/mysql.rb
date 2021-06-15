@@ -63,7 +63,7 @@ module ScalingoBackupsManager
         puts "*** Restoring backup to mysql database ***"
         puts "Command: #{restore_cmd}"
         system(restore_cmd)
-        #FileUtils.rm_r destination_path unless opts[:skip_rm]
+        FileUtils.rm_r destination_path unless opts[:skip_rm]
       end
 
     end
