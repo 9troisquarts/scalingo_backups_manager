@@ -33,8 +33,12 @@ module ScalingoBackupsManager
           password: rails_db_config["password"],
           user: rails_db_config["user"],
         }
-
-        restore_cmd = "/usr/bin/env pg_restore"
+        restore_cmd = ""
+        if config[:password].present?
+          restore_cmd = "PGPASSWORD=#{config[:password]} "
+        end
+        restore_cmd << "/usr/bin/env"
+        restore_cmd << " pg_restore"
 
         file_path = Dir["#{destination_path}*.pgsql"]
         if file_path.empty?
@@ -54,7 +58,7 @@ module ScalingoBackupsManager
           restore_cmd << " -p #{opts[:port] || config[:port] || 5432}"
         end
 
-        restore_cmd << " -d #{config[:database]}"
+        restore_cmd << " -d #{config[:database]} --no-owner"
 
         puts "*** Restoring backup to Postgres database ***"
         system(restore_cmd)
