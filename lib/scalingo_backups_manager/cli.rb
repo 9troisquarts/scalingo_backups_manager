@@ -89,7 +89,7 @@ module ScalingoBackupsManager
           if File.exist?(path)
             puts "Backup already download, skipping..."
           else
-            system "curl #{download_link} -o #{path} --create-dirs"
+            system "curl #{download_link} -o #{path} --create-dirs -k"
           end
         else
           puts "No download link found for #{addon.addon_provider[:id]}, Skipping..."
