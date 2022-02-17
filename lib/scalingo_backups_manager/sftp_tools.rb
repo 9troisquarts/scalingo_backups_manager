@@ -10,8 +10,14 @@ module ScalingoBackupsManager
     end
 
     def start
-      Net::SFTP.start(@ftp_host[:host], @ftp_host[:user], password: @ftp_host[:password], port: @ftp_host[:port]) do |sftp|
-        yield(sftp) if block_given?
+      if @ftp_host[:password]
+        Net::SFTP.start(@ftp_host[:host], @ftp_host[:user], password: @ftp_host[:password], port: @ftp_host[:port]) do |sftp|
+          yield(sftp) if block_given?
+        end
+      elsif @ftp_host[:private_key_path]
+        Net::SFTP.start(@ftp_host[:host], @ftp_host[:user], key_data: [], keys: @ftp_host[:private_key_path], keys_only: true, port: @ftp_host[:port]) do |sftp|
+          yield(sftp) if block_given?
+        end
       end
     end
 
@@ -36,7 +42,6 @@ module ScalingoBackupsManager
         folder_tree = []
         path.split("/").each do |folder_name|
           next if folder_name.blank?
-
           folder_tree << folder_name
           begin
             sftp.mkdir!(folder_tree.join("/"))

@@ -164,6 +164,7 @@ module ScalingoBackupsManager
           when "daily"
             sftp.upload_file(path, remote_path, options: opts)
             files = sftp.list_files(remote_path)
+            p files.length
             puts "#{step} - Checking daily backups"
             step += 1
             if files.size > retention_config[:ttl]
