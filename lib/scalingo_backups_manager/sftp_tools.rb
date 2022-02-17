@@ -24,8 +24,11 @@ module ScalingoBackupsManager
     def list_files(path)
       files = []
       start do |sftp|
-        sftp.dir.glob("#{path}", "*.tar.gz").each do |file|
-          files << file
+        begin
+          sftp.dir.glob("#{path}", "*.tar.gz").each do |file|
+            files << file
+          end
+        rescue
         end
       end
       files
