@@ -79,20 +79,24 @@ module ScalingoBackupsManager
       end
 
       configuration.for_each_addons(searched_application, searched_addon) do |application, addon|
-        backups = addon.backups
-        next unless backups.size > 0
-        backup = backups.first
-        download_link = backup.download_link
-        if download_link
+        begin
           puts "Downloading #{application.name} last backup"
-          path = ("#{addon.config[:path]}" || "backups/#{addon.addon_provider[:id]}") + "/#{Time.now.strftime("%Y%m%d")}.tar.gz"
-          if File.exist?(path)
-            puts "Backup already download, skipping..."
+          backups = addon.backups
+          next unless backups.size > 0
+          backup = backups.first
+          download_link = backup.download_link
+          if download_link
+            path = ("#{addon.config[:path]}" || "backups/#{addon.addon_provider[:id]}") + "/#{Time.now.strftime("%Y%m%d")}.tar.gz"
+            if File.exist?(path)
+              puts "Backup already download, skipping..."
+            else
+              system "curl #{download_link} -o #{path} --create-dirs -k"
+            end
           else
-            system "curl #{download_link} -o #{path} --create-dirs -k"
+            puts "No download link found for #{addon.addon_provider[:id]}, Skipping..."
           end
-        else
-          puts "No download link found for #{addon.addon_provider[:id]}, Skipping..."
+        rescue
+          puts "Issue with configuration of #{application.name}"
         end
       end
     end

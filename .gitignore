@@ -12,3 +12,4 @@
 scalingo-backups-config.yml
 /backups/
 .idea
+.rbenv-vars
