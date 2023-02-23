@@ -60,6 +60,9 @@ module ScalingoBackupsManager
         begin
           sftp.upload!(filepath, "#{remote_dir}/#{filename}")
         rescue
+          if options.dig(:webhooks, :healthchecks_webhook_url)
+            ScalingoBackupsManager::Notification.send_healthchecks_notification(options.dig(:webhooks, :healthchecks_webhook_url), "An error has occured while uploading backup, see the logs for more information")
+          end
           if options.dig(:webhooks, :slack_webhook_url)
             ScalingoBackupsManager::Notification.send_slack_notification(options.dig(:webhooks, :slack_webhook_url), "An error has occured while uploading backup, see the logs for more information")
           end

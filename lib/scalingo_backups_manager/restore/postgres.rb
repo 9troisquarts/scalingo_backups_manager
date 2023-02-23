@@ -17,7 +17,6 @@ module ScalingoBackupsManager
         destination_path = filename.split("/")
         backup_name = destination_path.pop.gsub(".tar.gz", "")
         destination_path = destination_path.join("/") + backup_name + "/"
-        p destination_path
         if Dir.exist?(destination_path)
           puts "Unzipped backup is already present, skipping..."
         else
@@ -26,12 +25,13 @@ module ScalingoBackupsManager
           system untar_cmd
         end
 
-        rails_db_config = YAML.load(ERB.new(File.read("config/#{opts[:database_config_file]}")).result)[opts[:env]]
+        rails_db_config = YAML.load(ERB.new(File.read("config/#{opts[:database_config_file]}")).result)[opts[:env].to_s]
         config = {
           host: rails_db_config["host"],
           database: rails_db_config["database"],
           password: rails_db_config["password"],
           user: rails_db_config["user"],
+          port: rails_db_config["port"]
         }
         restore_cmd = ""
         if config[:password].present?
@@ -61,6 +61,7 @@ module ScalingoBackupsManager
         restore_cmd << " -d #{config[:database]} --no-owner"
 
         puts "*** Restoring backup to Postgres database ***"
+        puts restore_cmd
         system(restore_cmd)
         FileUtils.rm_r destination_path unless opts[:skip_rm]
       end

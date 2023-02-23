@@ -3,6 +3,13 @@ module ScalingoBackupsManager
 
   class Notification
 
+    def self.send_healthchecks_notification(hook_url, message)
+      HTTParty.get(
+        hook_url,
+        headers: { 'Content-Type' => 'application/json' }
+      )
+    end
+
     def self.send_slack_notification(hook_url, message)
       HTTParty.post(
         hook_url,
