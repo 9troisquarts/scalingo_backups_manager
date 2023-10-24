@@ -24,7 +24,6 @@ module ScalingoBackupsManager
           untar_cmd = "tar zxvf #{filename} -C #{destination_path}"
           system untar_cmd
         end
-
         rails_db_config = YAML.load(ERB.new(File.read("config/#{opts[:database_config_file]}")).result)[opts[:env].to_s]
         config = {
           host: rails_db_config["host"],
