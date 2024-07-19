@@ -24,6 +24,7 @@ module ScalingoBackupsManager
 
     def database_api_url(options: {})
       return @database_api_url if @database_api_url
+
       @database_api_url = "#{options[:database_api_root_url] || DEFAULT_DATABASE_API_ROOT_URL}/api/databases/#{id}"
     end
 
@@ -40,7 +41,7 @@ module ScalingoBackupsManager
 
       addon_cli_config = Scalingo::Client.new
       addon_cli_config.token = bearer_token
-      @client = Scalingo::API::Client.new(database_api_url(options), scalingo: addon_cli_config)
+      @client = Scalingo::API::Client.new(database_api_url(options: options), scalingo: addon_cli_config)
     end
 
 

@@ -1,4 +1,5 @@
 require 'yaml'
+require 'fileutils'
 require 'erb'
 module ScalingoBackupsManager
   module Restore
@@ -29,12 +30,15 @@ module ScalingoBackupsManager
           system untar_cmd
         end
 
-        rails_db_config = YAML.load(ERB.new(File.read("config/#{opts[:database_config_file]}")).result)[opts[:env]]
+        database_yml_content = File.read("config/#{opts[:database_config_file]}")
+        parsed_database_config = ERB.new(database_yml_content).result
+        rails_db_config = YAML.load(parsed_database_config)[opts[:env]]
         config = {
           host: rails_db_config["host"],
           database: rails_db_config["database"],
           password: rails_db_config["password"],
           user: rails_db_config["username"],
+          port: rails_db_config["port"]
         }
 
         restore_cmd = "/usr/bin/env mysql -h #{opts[:host] || config[:host]}"
